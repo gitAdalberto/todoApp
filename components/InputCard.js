@@ -11,11 +11,12 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import { useState } from "react";
 import { API_URL } from '@config';
-
+import { useNavigation } from "@react-navigation/native";
 
 export default function InputCard({todos, setTodos}) {
     const [focus, setFocus] = useState(false);
     const [task, setTask] = useState("");
+    const navi = useNavigation();
 
     const handleSubmit = async () => {
         console.log("hola mundo");
@@ -44,6 +45,11 @@ export default function InputCard({todos, setTodos}) {
         }
     }
 
+    function handleLogOut() {
+        console.log('hola mundo');
+        navi.replace('Login')
+    }
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -51,6 +57,9 @@ export default function InputCard({todos, setTodos}) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 
                 <View style={styles.inputContainer}>
+                    <Pressable onPress={handleLogOut}>
+                        <FontAwesome name="sign-out" size={45} color={"gray"}/>
+                    </Pressable>
                     <TextInput
                         placeholder="Nueva Tarea"
                         style={[styles.textInput, focus && { borderWidth: 2, borderColor: "black"}]}
@@ -80,7 +89,7 @@ const styles = StyleSheet.create({
     },
     textInput:{
         backgroundColor:"#fff",        
-        width: "80%",
+        width: "70%",
         fontSize: 16,
         borderRadius: 32,
         padding: 15,
