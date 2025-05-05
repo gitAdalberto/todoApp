@@ -2,12 +2,15 @@ import { TextInput, View,Button, StyleSheet, Pressable, Text } from "react-nativ
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { API_URL } from "../config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function Login() {
 
     const navi = useNavigation();
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
+    const [remember, setRemember] = useState(false);
 
     const handleLogin = async () => {
         console.log('button ingresar');
@@ -17,11 +20,21 @@ export default function Login() {
             const data = await response.json();
             console.log('información del usuario:');
             console.log(data);
+            console.log('id del usuario:',data.id);
             console.log('fin información')
+            //async storage
+            await AsyncStorage.setItem('remember', JSON.stringify(remember));
+            await AsyncStorage.setItem('user_id',JSON.stringify(data.id));
+            console.log(JSON.stringify(remember));
+            console.log(JSON.stringify(data.id));
             navi.replace('Home',{ id: data.id });
         } else {
             setEmail('user1@example.com');
         }
+    }
+
+    const toggle =  () => {
+        setRemember(!remember);
     }
 
     return (
@@ -43,6 +56,20 @@ export default function Login() {
                     style={styles.Input}
                     secureTextEntry
                 />
+            </View>
+            <View style={styles.toggleContainer}>
+                <Text style={styles.toogleText}>Recordar inicio de sesión</Text>
+                {
+                    remember === true ? (
+                        <Pressable style={styles.checkButton} onPress={toggle}>
+                            <FontAwesome name='check' size={20} color="#fff"></FontAwesome>
+                        </Pressable>
+                    ) : (
+                        <Pressable style={styles.unCheckButton} onPress={toggle}>
+                            <FontAwesome name='check' size={20} color="transparent"></FontAwesome>
+                        </Pressable>
+                    )
+                }
             </View>
             <Pressable style={styles.Button} onPress={handleLogin}>
                 <Text style={styles.ButtonText}>Ingresar</Text>
@@ -91,6 +118,31 @@ const styles = StyleSheet.create({
     ButtonText:{
         color: '#fff',
         fontWeight: 'bold',
+        fontSize: 16,
+    },
+    unCheckButton: {
+        backgroundColor: "transparent",
+        padding: 10,
+        borderRadius: 8,
+        borderWidth:2,
+        borderColor: "gray",
+        alignItems: 'center',
+    },
+    checkButton: {
+        backgroundColor: '#09f',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    toggleContainer:{
+        width:'90%',
+        flexDirection: 'row',
+        backgroundColor: 'transparent',
+        alignItems:'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 10,        
+    },
+    toogleText:{
         fontSize: 16,
     }
 });

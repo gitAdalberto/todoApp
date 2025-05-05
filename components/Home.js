@@ -9,16 +9,16 @@ import { API_URL } from '../config';
 
 export default function Home({route}) {
 
-
+  
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    fetchData();
+    fetchData(route.params?.id);
     console.log('datos del usuario: ', route.params?.id);
   }, []);
 
-  async function fetchData() {
-    const response = await fetch(`${API_URL}/todos/1`);
+  async function fetchData(id) {
+    const response = await fetch(`${API_URL}/todos/${id}`);
     const data = await response.json();
     setTodos(data);
     console.log(data);

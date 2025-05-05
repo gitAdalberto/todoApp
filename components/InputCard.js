@@ -12,6 +12,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useState } from "react";
 import { API_URL } from '@config';
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function InputCard({todos, setTodos}) {
     const [focus, setFocus] = useState(false);
@@ -45,9 +46,11 @@ export default function InputCard({todos, setTodos}) {
         }
     }
 
-    function handleLogOut() {
+    const handleLogOut = async () => {
         console.log('hola mundo');
-        navi.replace('Login')
+        await AsyncStorage.removeItem('remember');
+        await AsyncStorage.removeItem('user_id');
+        navi.replace('Login');
     }
 
     return (
