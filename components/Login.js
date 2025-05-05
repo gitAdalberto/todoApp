@@ -1,44 +1,63 @@
-import { TextInput, View,Button, StyleSheet, Pressable, Text } from "react-native";
+import { TextInput, View, StyleSheet, Pressable, Text, Alert, Keyboard } from "react-native";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { API_URL } from "../config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FontAwesome } from '@expo/vector-icons';
 
 export default function Login() {
 
     const navi = useNavigation();
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
-    const [remember, setRemember] = useState(false);
 
     const handleLogin = async () => {
         console.log('button ingresar');
-        
-        if (email) {
-            const response = await fetch(`${API_URL}/users/email/${email}`);
-            const data = await response.json();
-            console.log('información del usuario:');
-            console.log(data);
-            console.log('id del usuario:',data.id);
-            console.log('fin información')
-            //async storage
-            await AsyncStorage.setItem('remember', JSON.stringify(remember));
-            await AsyncStorage.setItem('user_id',JSON.stringify(data.id));
-            console.log(JSON.stringify(remember));
-            console.log(JSON.stringify(data.id));
-            navi.replace('Home',{ id: data.id });
+        console.log(email);
+        console.log(password);
+        if (email && password) {
+            const response = await fetch(`${API_URL}/users/login`,
+                {
+                    headers: {
+                        "Content-Type":"application/json",
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                }
+            );
+            console.log("response status:", response.status);
+            
+            if (response.status === 404) {
+                Alert.alert('Error al registrarse','Este usuario no esta registrado');
+                return;
+            }
+    
+            if (response.status === 500) {
+                Alert.alert('Error al registrarse','Error al crear el usuario');
+                return;
+            }
+
+            if (response.status === 200) {
+                const data = await response.json();
+                console.log("data:",data);
+                console.log("id:",data.id);
+                Keyboard.dismiss();
+                navi.replace('Home',{ id: data.id });
+            } else {
+                console.log('nada');
+            }
+            
+            
         } else {
             setEmail('user1@example.com');
+            setPassword('1234');
         }
-    }
-
-    const toggle =  () => {
-        setRemember(!remember);
     }
 
     return (
         <View style={styles.Container}>
+            <Text style={styles.title}>Iniciar Sesión</Text>
             <View style={styles.InputContainer}>
                 <TextInput
                     placeholder="Correo electrónico"
@@ -57,23 +76,15 @@ export default function Login() {
                     secureTextEntry
                 />
             </View>
-            <View style={styles.toggleContainer}>
-                <Text style={styles.toogleText}>Recordar inicio de sesión</Text>
-                {
-                    remember === true ? (
-                        <Pressable style={styles.checkButton} onPress={toggle}>
-                            <FontAwesome name='check' size={20} color="#fff"></FontAwesome>
-                        </Pressable>
-                    ) : (
-                        <Pressable style={styles.unCheckButton} onPress={toggle}>
-                            <FontAwesome name='check' size={20} color="transparent"></FontAwesome>
-                        </Pressable>
-                    )
-                }
+            
+            <View style={styles.ButtonContainer}>
+                <Pressable style={styles.Button} onPress={handleLogin}>
+                    <Text style={styles.ButtonText}>Ingresar</Text>
+                </Pressable>
+                <Pressable style={styles.Button} onPress={()=>{navi.navigate('Register');}}>
+                    <Text style={styles.ButtonText}>Registrarse</Text>
+                </Pressable>
             </View>
-            <Pressable style={styles.Button} onPress={handleLogin}>
-                <Text style={styles.ButtonText}>Ingresar</Text>
-            </Pressable>
         </View>
     )
 }
@@ -88,6 +99,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#00000010',
         width: '100%',
         gap: 16,
+    },
+    title:{
+        fontSize: 16,
+        color: '#000',
     },
     InputContainer:{
         alignSelf: 'center',
@@ -113,12 +128,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 32,
-        
+        width: 120,
     },
     ButtonText:{
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
+        alignSelf: 'center'
     },
     unCheckButton: {
         backgroundColor: "transparent",
@@ -144,5 +160,11 @@ const styles = StyleSheet.create({
     },
     toogleText:{
         fontSize: 16,
+    },
+    ButtonContainer:{
+        width: '90%',
+        alignSelf: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
     }
 });

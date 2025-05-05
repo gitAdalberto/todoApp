@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useRef } from 'react';
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import CheckMark from './CheckMark';
 import ShareMark from './ShareMark';
@@ -14,19 +14,19 @@ import { API_URL } from '@config';
 export default function Card({
   id,
   title,
+  user_id,
   shared_with_id,
   completed,
   clearTodo,
   toggleTodo,
   updateTodoTitle,
-  fetchData
+  fetchData,
 }) {
-  const [isEditActive, setIsEditActive] = useState(false);
-  const [isDeleteActive, setIsDeleteActive] = useState(false);
   
   const bottomSheetModalRef = useRef(null);
   const sharedBottomSheetRef = useRef(null);
   const editBottomSheetRef = useRef(null);
+  const [isEditActive, setIsEditActive] = useState(false);
 
   const snapPoints = ["25%", "48%", "75%"];
   const snapPointsShared = ["40%"];
@@ -55,21 +55,33 @@ export default function Card({
     editBottomSheetRef.current?.close();
   }
 
-  async function deleteTodo() {
-    console.log("deleteTodo begin");
-    const response = await fetch(`${API_URL}/todos/${id}`, {
-      method: "DELETE",
-    });
-    clearTodo(id);
-    console.log(response.status);
-    console.log("deleteTodo end");
+  const deleteTodo = async () => {
+    console.log("eliminando tarea");
+    Alert.alert(
+        'Eliminar Tarea',
+        '¿Está seguro de eliminar la tarea?',
+        [
+            { text: 'OK', onPress: async() => {
+              console.log("deleteTodo begin");
+              const response = await fetch(`${API_URL}/todos/${id}`, {
+                method: "DELETE",
+              });
+              clearTodo(id);
+              console.log(response.status);
+              console.log("deleteTodo end");
+            }},
+            { text: 'Cancelar', onPress: () => console.log('Cancelado'), style: 'cancel' }
+        ]
+    );
+    
   }
+
 
   return (
     <TouchableOpacity 
       style={styles.card}
-      onLongPress={() => {setIsDeleteActive(true); setIsEditActive(true);}}
-      onPress={() => {setIsDeleteActive(false); setIsEditActive(false);}}
+      onLongPress={() => { setIsEditActive(true);}}
+      onPress={() => {setIsEditActive(false);}}
       activeOpacity={0.8}
     >
 

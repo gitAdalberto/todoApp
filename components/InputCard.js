@@ -6,15 +6,15 @@ import {
     TouchableWithoutFeedback,
     Platform,
     View,
-    Pressable
+    Pressable,
+    Alert
 } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
 import { useState } from "react";
 import { API_URL } from '@config';
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function InputCard({todos, setTodos}) {
+export default function InputCard({todos, setTodos, user_id}) {
     const [focus, setFocus] = useState(false);
     const [task, setTask] = useState("");
     const navi = useNavigation();
@@ -33,7 +33,7 @@ export default function InputCard({todos, setTodos}) {
                 },
                 method: "POST",
                 body: JSON.stringify({
-                    user_id: 1,
+                    user_id: user_id,
                     title: task,
                 }),
             });
@@ -46,11 +46,15 @@ export default function InputCard({todos, setTodos}) {
         }
     }
 
-    const handleLogOut = async () => {
-        console.log('hola mundo');
-        await AsyncStorage.removeItem('remember');
-        await AsyncStorage.removeItem('user_id');
-        navi.replace('Login');
+    const handleLogOut = () => {
+        Alert.alert(
+            'Cerrar sesión',
+            '¿Está seguro de cerrar sesión?',
+            [
+                { text: 'OK', onPress: () => navi.replace('Login')},
+                { text: 'Cancelar', onPress: () => console.log('Cancelado'), style: 'cancel' }
+            ]
+        );
     }
 
     return (

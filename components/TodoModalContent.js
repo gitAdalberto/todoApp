@@ -39,7 +39,7 @@ export default function TodoModalContent({id, title, handleCloseModal}) {
             <Text style={[styles.title, { marginBottom: 20}]}>Comparte tu tarea</Text>
             <Text style={[styles.text, { marginBottom: 20}]}>"{title}"</Text>
             <Text style={[styles.text]}>
-                Ingresa el email del usuario con que quieras compartir tu tarea. Comparte una tarea con alguien y sincroniza tus metas cada día.
+                Ingresa el email del usuario con que quieras compartir tu tarea.
             </Text>
             <TextInput
                 value={email}
